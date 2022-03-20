@@ -19,7 +19,7 @@
 #define SIZE 512                    // hash table size
 #define EMP_FILENAME 'EmployeeFile.bin'
 #define ATT_FILENAME 'AttendanceFile.bin'
-#define PAY_FILENAME 'PayrollIDList.bin'
+#define PAY_FILENAME 'Payrolls.bin'
 /* Note: Actual file names will be '<CompanyName>_EmployeeFile.bin'. 
  * Company name will be inputted at main menu upon program and data initialization.
  */
