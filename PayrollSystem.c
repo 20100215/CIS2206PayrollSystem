@@ -1129,6 +1129,20 @@ void clearEmployeeLL(employeeList listEmployee)
 }
 
 /**
+ * @brief Get user int input
+ * @param question - prompt question
+ * @return int - user int input
+ */
+int getIntInput(char question[])
+{
+    int ret;
+    printf("%s", question);
+    fflush(stdin);
+    scanf("%d", &ret);
+    return ret;
+}
+
+/**
  * @brief Asking for the group and the dates for the payroll
  *
  * @param group - update the group variable in the createPayroll function
@@ -1219,33 +1233,6 @@ char *generatePayrollID(char group, int payrollDate[])
 
     return ID;
 }
-
-/**
- * @brief Get the All Payrolls based on the given payroll ID
- *
- * @param payrollId - what kind of employees we want to get
- * @return payrollDetail* - array of all the employees with the matching payrollId
- *
-payrollDetail *getAllPayrolls(char payrollId[])
-{
-    payrollDetail *retpd, temp;
-    FILE *fptr;
-    int x;
-
-    fptr = fopen(PAY_FILENAME, "rb");
-    retpd = (payrollDetail *)calloc(numOfEmployees, sizeof(payrollDetail));
-    while (fread(&temp, sizeof(payrollDetail), 1, fptr) != 0)
-    {
-        if (strcmp(payrollId, temp.payrollID) == 0)
-        {
-            retpd[x] = temp;
-            x++;
-        }
-    }
-
-    return retpd;
-}
-*/
 
 void inputAttendanceInfo(employeeDetails empTemp, payrollDetail *payTemp)
 {
@@ -1584,75 +1571,4 @@ void createPayroll(employeeTable empTable, char companyName[])
     }
 }
 
-/**
- * @brief Get user int input
- * @param question - prompt question
- * @return int - user int input
- */
-int getIntInput(char question[])
-{
-    int ret;
-    printf("%s", question);
-    fflush(stdin);
-    scanf("%d", &ret);
-    return ret;
-}
 
-// /**
-//  * @brief adding employees within a group
-//  *
-//  * @param eig - group and no. of employees to be added to a file
-//  */
-// void addEmployeesInGroup(employeesInGroup eig)
-// {
-//     FILE *fptr;
-
-//     fptr = fopen("EMPLOYEES_IN_GROUP", "a");
-//     fwrite(&eig, sizeof(employeesInGroup), 1, fptr);
-
-//     fclose(fptr);
-// }
-
-// /**
-//  * @brief set the number of employees
-//  *
-//  * @param dept - department
-//  * @param num - new total of employees
-//  */
-// void setNumOfEmployees(char dept, int num)
-// {
-//     FILE *fptr;
-//     employeesInGroup temp;
-//     int eigSize;
-
-//     fptr = fopen("EMPLOYEES_IN_GROUP", "rb+");
-//     eigSize = sizeof(employeesInGroup);
-//     // Loop until the desired dept is found
-//     while (fread(&temp, eigSize, 1, fptr) != 0)
-//     {
-//         if (temp.group == dept)
-//         {
-//             temp.numOfEmployees = num;
-//             printf("\n%d", ftell(fptr));
-//             fseek(fptr, eigSize * -1, SEEK_CUR);
-//             printf("\n%d", ftell(fptr));
-//             fwrite(&temp, eigSize, 1, fptr);
-//             printf("\n%d", ftell(fptr));
-//             break;
-//         }
-//     }
-//     fclose(fptr);
-// }
-
-/**
- * @brief just for renewing file for testing purposes
- *
- * @param file - file name
- */
-void renewFile(char file[])
-{
-    FILE *fptr;
-
-    fptr = fopen(file, "w");
-    fclose(fptr);
-}
