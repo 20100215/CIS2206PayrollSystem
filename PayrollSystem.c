@@ -17,7 +17,7 @@
 /***** CONSTANTS *****/
 #define SIZE 512 // hash table size
 #define EMP_FILENAME "_EmployeeFile.txt"
-#define PAY_FILENAME "_PayrollFile.txt"
+#define PAY_FILENAME "_PayrollFile.bin"
 
 /* Note: Actual file names will be '<CompanyName>_EmployeeFile.bin'.
  * Company name will be inputted at main menu upon program and data initialization.
@@ -147,11 +147,17 @@ void sortEmployees(employeeTable empTable, employeeList listEmployee);          
 int displayEmployees(employeeTable empTable, employeeList listEmployee, char dept); // display employee given by a department
 void clearEmployeeLL(employeeList listEmployee);
 
+void viewEmployee(employeeTable empTable);
+
+void createPayroll(employeeTable empTable, char companyName[]);
+
+int editEmployee(employeeTable empTable, char companyName[]);
+int updateEmployee(employeeTable empTable, employeeDetails newEmployee, int index);
+int updateEmployeeToFile(char companyName[], employeeDetails newEmployee);
+int updateAttendanceRecord(attendanceHistory history, attendanceDetails newRecord);
+int updateAttendanceToFile(char companyName[], attendanceDetails newRecord);
+
 /*End of initialization function Protypes */
-void viewEmployee();
-void editEmployee();
-void createPayroll();
-void confirmExit();
 
 /***** main() function - Handles the main menu and calls the subfunction *****/
 int main()
@@ -187,12 +193,12 @@ int main()
         printf("\n==========================================");
         printf("\n                MAIN MENU                 ");
         printf("\n==========================================");
-        printf("\n| [ 1 ]      Add New Employee            |");
-        printf("\n| [ 2 ]      View Employee List          |");
-        printf("\n| [ 3 ]      View Specific Employee      |");
-        printf("\n| [ 4 ]      Edit Employee Detais        |");
-        printf("\n| [ 5 ]      Create Payroll              |");
-        printf("\n| [ 0 ]      Exit                        |");
+        printf("\n| [ 1 ]    Add New Employee              |");
+        printf("\n| [ 2 ]    View Employee List            |");
+        printf("\n| [ 3 ]    View Specific Employee Info   |");
+        printf("\n| [ 4 ]    Edit Employee Detais          |");
+        printf("\n| [ 5 ]    Create Payroll                |");
+        printf("\n| [ 0 ]    Exit                          |");
         printf("\n==========================================");
         printf("\n\nYour Choice: ");
 
@@ -208,10 +214,10 @@ int main()
             viewEmployeeList(empTable);
             break;
         case '3':
-            // viewEmployee();
+            viewEmployee(empTable);
             break;
         case '4':
-            // editEmployee();
+            editEmployee(empTable, companyName);
             break;
         case '5':
             createPayroll(empTable, companyName);
@@ -372,8 +378,8 @@ int initAttendanceList(employeeTable empTable, char companyName[])
     {
         // Means that company is new and not yet created.
         count = -1;
-        //fp = fopen(fileName, "wb");
-        //fclose(fp);
+        // fp = fopen(fileName, "wb");
+        // fclose(fp);
     }
     return count;
 }
@@ -551,7 +557,7 @@ int nameValidation(char name[])
     for (x = 0; name[x] != '\0' && (isalpha(name[x]) != 0 || isspace(name[x]) != 0); x++)
     {
     }
-    return (name[x] == '\0') ? 1 : 0;
+    return (x != 0 && name[x] == '\0') ? 1 : 0;
 }
 
 /**
@@ -661,12 +667,12 @@ int addEmployee(employeeTable empTable, char companyName[])
     /* buffer for input validation */
     char dateString[11], emailString[32], contactString[12];
     int month, day, year;
-    float basicSalary = 0, overtimePay = 0, contributions = 0;
+    float basicSalary = 0, overtimePay = 0;
 
     int validFlag[9] = {0}; /* check if all fields are correctly inputted */
-    int retValue = 0;        /* return value */
-    int exitFlag = 0;        /* condition if the loop will continue */
-    int i;                   /* counter for loops */
+    int retValue = 0;       /* return value */
+    int exitFlag = 0;       /* condition if the loop will continue */
+    int i;                  /* counter for loops */
     int ch;
 
     char choice; /* 0-9 = inputs, e = exit, c = create */
@@ -715,7 +721,7 @@ int addEmployee(employeeTable empTable, char companyName[])
         printf("\n[ 9 ] Department:             \t%c", newEmployee.employee.department);
         printf("\n[ 0 ] Employee Status:        \t%s", (newEmployee.employee.status) ? "Inactive" : "Active");
         printf("\n==========================================");
-        printf("\n[c] create employee | [e] exit ");
+        printf("\n[c] Confirm and create | [e] Exit ");
         printf("\n\nChoice: ");
         fflush(stdin);
         scanf("%c", &choice);
@@ -1023,7 +1029,7 @@ void viewEmployeeList(employeeTable empTable)
             {
                 count += displayEmployees(empTable, listEmployee, ch);
             }
-            printf("\n\nTotal: %d employees",count);
+            printf("\n\nTotal: %d employees", count);
             break;
         case '2':
             // display all employees of a department
@@ -1040,7 +1046,7 @@ void viewEmployeeList(employeeTable empTable)
             else
             {
                 flag = 0;
-                printf("\n\nTotal: %d employees",count);
+                printf("\n\nTotal: %d employees", count);
             }
             break;
         case '3':
@@ -1128,6 +1134,185 @@ void clearEmployeeLL(employeeList listEmployee)
     }
 }
 
+int displayAdvancedSalaryInfo(attendanceHistory head, int numEntries)
+{
+    int flag = 0, ctr = 1;
+    int monthDays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    int choice;
+    List trav;
+    printf("\nEnter payroll number to display its details, or enter 0 to exit.");
+    printf("\n\nChoice: ");
+    fflush(stdin);
+    scanf("%d", &choice);
+    if (choice > 0 && choice <= numEntries)
+    {
+        // traverse to the given period
+        for (trav = head; trav != NULL && ctr < choice; trav = trav->link, ctr++)
+        {
+        }
+        // get period number:
+        int month = (trav->payrollInfo.payrollID[2] - '0') * 10 + trav->payrollInfo.payrollID[3] - '0';
+        int year = 2000 + (trav->payrollInfo.payrollID[0] - '0') * 10 + trav->payrollInfo.payrollID[1] - '0';
+        int period = trav->payrollInfo.payrollID[4] - '0';
+        int day1 = (period == 1) ? 1 : monthDays[month - 1] / 2 + 1;
+        int day2 = (period == 1) ? monthDays[month - 1] / 2 : monthDays[month - 1];
+        switch (period)
+        {
+        case 1:
+            printf("\nAttendance details for the period %02d/%02d/%04d - %02d/%02d/%04d\n", month, day1, year, month, day2, year);
+            printf("\nDays absent:           %d", trav->payrollInfo.daysAbsent);
+            printf("\nHours overtime:        %d", trav->payrollInfo.hoursOvertime);
+            printf("\nHours late/undertime:  %d\n", trav->payrollInfo.hoursUndertime);
+            printf("\nSalary for the period: P %9.2f\n", trav->payrollInfo.netSalary);
+            printf("\nNote: Deductions such as contributions and withholding tax will be computed");
+            printf("\nand reflected every second payment period of the month.");
+            printf("\n---------------------------------------------------------------");
+            printf("\nPress any key to exit...");
+            getch();
+            break;
+        case 2:
+            printf("\nAttendance details for the period %02d/%02d/%04d - %02d/%02d/%04d\n", month, day1, year, month, day2, year);
+            printf("\nDays absent:           %d", trav->payrollInfo.daysAbsent);
+            printf("\nHours overtime:        %d", trav->payrollInfo.hoursOvertime);
+            printf("\nHours late/undertime:  %d\n", trav->payrollInfo.hoursUndertime);
+            printf("\nGross Salary for the period:     P %9.2f", trav->payrollInfo.grossIncome);
+            printf("\nLess: Government contributions: (P %9.2f)", trav->payrollInfo.contributions);
+            printf("\nTaxable income:                  P %9.2f", trav->payrollInfo.taxableIncome);
+            printf("\nLess: Witholding taxes:         (P %9.2f)\n", trav->payrollInfo.withTax);
+            printf("\nNet salary for the period:       P %9.2f\n", trav->payrollInfo.netSalary);
+            printf("\nNote: Deductions such as contributions and withholding tax are computed");
+            printf("\nbased on the combined gross income of the first and second periods of the month.");
+            printf("\n---------------------------------------------------------------");
+            printf("\nPress any key to exit...");
+            getch();
+            break;
+        case 3:
+            printf("\n13th month bonus earned for the year %d:      P %9.2f\n", year, trav->payrollInfo.netSalary);
+            printf("\nNote: 13th month pay is computed by getting 1/12 of the employee's total gross");
+            printf("\nincome in the year only if he or she works from more than a month within the year. ");
+            printf("\nThis amount is not included in any tax deductions nor contributions.");
+            printf("\n---------------------------------------------------------------");
+            printf("\nPress any key to exit...");
+            getch();
+            break;
+        }
+    }
+    else if (choice == 0)
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+void viewEmployee(employeeTable empTable)
+{
+    int index, count;
+    float sum = 0;
+    char givenID[8], flag = 1, choice;
+    int monthDays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    List trav;
+    attendanceDetails temp;
+
+    system("cls");
+    printf("\n==========================================");
+    printf("\n       VIEW SPECIFIC EMPLOYEE	INFO        ");
+    printf("\n==========================================");
+    printf("\n\nEnter Employee ID: ");
+    fflush(stdin);
+    scanf("%s", givenID);
+
+    index = searchEmployee(empTable, givenID);
+
+    if (index != -1)
+    {
+        while (flag)
+        {
+            system("cls");
+            printf("\n==========================================");
+            printf("\n       VIEW SPECIFIC EMPLOYEE DETAILS     ");
+            printf("\n==========================================");
+            printf("\n\nID: %s - %s, %s %c.", empTable[index].employee.empID, empTable[index].employee.name.LName, empTable[index].employee.name.fName, empTable[index].employee.name.MI);
+            printf("\n\n[ 1 ] Display complete details");
+            printf("\n[ 2 ] Display periods");
+            printf("\n[ 3 ] Main menu");
+            printf("\n\nChoice: ");
+            fflush(stdin);
+            scanf("%c", &choice);
+            switch (choice)
+            {
+            case '1':
+                flag = 0;
+                system("cls");
+                printf("\n===================================================");
+                printf("\n             COMPLETE EMPLOYEE DETAILS     	     ");
+                printf("\n===================================================\n");
+                printf("\nEmployee ID:            \t%s", empTable[index].employee.empID);
+                printf("\nName:                   \t%s, %s %c.", empTable[index].employee.name.LName, empTable[index].employee.name.fName, empTable[index].employee.name.MI);
+                printf("\nDate employed(MM/DD/YY):\t%02d/%02d/%02d", empTable[index].employee.dateEmployed.month, empTable[index].employee.dateEmployed.day, empTable[index].employee.dateEmployed.year);
+                printf("\nEmail address:          \t%s", empTable[index].employee.contact.email);
+                printf("\nMobile number:          \t%s", empTable[index].employee.contact.phone);
+                printf("\nBasic Salary:           \t%.02f", empTable[index].employee.details.basicSalary);
+                printf("\nOvertime Pay:           \t%.02f", empTable[index].employee.details.overtimeHourlyRate);
+                printf("\nDepartment:             \t%c", empTable[index].employee.department);
+                printf("\nEmployee Status:        \t%s\n", (empTable[index].employee.status) ? "Inactive" : "Active");
+                printf("\n===================================================");
+                break;
+            case '2':
+                flag = 0;
+                do
+                {
+                    count = 0;
+                    sum = 0;
+                    system("cls");
+                    printf("\n==========================================");
+                    printf("\n          EMPLOYEE PAYROLL SUMMARY        ");
+                    printf("\n==========================================");
+
+                    system("cls");
+                    printf("\nPAYROLL DETAILS OF %s - %s, %s %c.", empTable[index].employee.empID, empTable[index].employee.name.LName, empTable[index].employee.name.fName, empTable[index].employee.name.MI);
+                    printf("\n----------------------------------------------------------------------");
+                    printf("\n  Period #    From   To             Amount (PHP)");
+                    for (trav = empTable[index].history; trav != NULL; trav = trav->link)
+                    {
+                        count++;
+                        temp = trav->payrollInfo;
+                        int month = (temp.payrollID[2] - '0') * 10 + temp.payrollID[3] - '0';
+                        int year = 2000 + (temp.payrollID[0] - '0') * 10 + temp.payrollID[1] - '0';
+                        int period = temp.payrollID[4] - '0';
+                        int day1 = (period == 1) ? 1 : monthDays[month - 1] / 2;
+                        int day2 = (period == 1) ? monthDays[month - 1] / 2 + 1 : monthDays[month - 1];
+                        sum += temp.netSalary;
+                        if (period != 3)
+                            printf("\n  [%2d]  %02d/%02d/%04d - %02d/%02d/%04d      P %9.2f", count, month, day1, year, month, day2, year, temp.netSalary);
+                        else
+                            printf("\n  [%2d]  Dec %04d - 13th Month Pay    P %9.2f", count, year, temp.netSalary);
+                    }
+                    printf("\n\nTotal payouts: P %9.2f", sum);
+                    printf("\n------------------------------------------------------------------------");
+                } while (count != 0 && displayAdvancedSalaryInfo(empTable[index].history, count) != 0);
+                if (count == 0)
+                {
+                    printf("\nNo payroll record has been generated for the employee yet.");
+                }
+                break;
+            case '3':
+                return;
+                break;
+            default:
+                printf("Invalid input. Please enter 1 or 2");
+                break;
+            }
+        }
+    }
+    else
+    {
+        printf("\nError: Emplyoee does not exist. ");
+    }
+    printf("\n\nPress any key to exit...");
+    getch();
+}
+
 /**
  * @brief Get user int input
  * @param question - prompt question
@@ -1169,7 +1354,7 @@ int askPayrollPeriodDetails(char *group, int payrollDate[])
         payrollDate[2] = getIntInput("Enter the start date: ");
         payrollDate[3] = getIntInput("Enter the end date: ");
         payrollDate[4] = payrollDate[2] == 1 ? 1 : 2;
-        if (dateValidation(payrollDate[1], payrollDate[2], payrollDate[0] % 100) && dateValidation(payrollDate[1], payrollDate[2], payrollDate[4] % 100) && payrollDate[2]<payrollDate[3])
+        if (dateValidation(payrollDate[1], payrollDate[2], payrollDate[0] % 100) && dateValidation(payrollDate[1], payrollDate[2], payrollDate[4] % 100) && payrollDate[2] < payrollDate[3])
         {
             do
             {
@@ -1225,7 +1410,7 @@ char *generatePayrollID(char group, int payrollDate[])
     sprintf(month, "%02d", payrollDate[1]);
     sprintf(period, "%1d", payrollDate[4]);
 
-    ID = (char *)calloc(7,sizeof(char));
+    ID = (char *)calloc(7, sizeof(char));
     strcat(ID, year);
     strcat(ID, month);
     strcat(ID, period);
@@ -1236,45 +1421,52 @@ char *generatePayrollID(char group, int payrollDate[])
 
 void inputAttendanceInfo(employeeDetails empTemp, payrollDetail *payTemp)
 {
-    if(isspace(empTemp.name.MI))
+    if (isspace(empTemp.name.MI))
         printf("\nFor employee %s- %s, %s:\n", empTemp.empID, empTemp.name.LName, empTemp.name.fName);
     else
         printf("\nFor employee %s- %s, %s %c.:\n", empTemp.empID, empTemp.name.LName, empTemp.name.fName, empTemp.name.MI);
     printf("  - Number of days absent: ");
     fflush(stdin);
     scanf("%d", &payTemp->daysAbsent);
+    if (payTemp->daysAbsent == '-')
+        payTemp->daysAbsent = 0;
     printf("  - Number of hours overtime: ");
     fflush(stdin);
     scanf("%d", &payTemp->hoursOvertime);
+    if (payTemp->hoursOvertime == '-')
+        payTemp->hoursOvertime = 0;
     printf("  - Number of hours late/undertime: ");
     fflush(stdin);
     scanf("%d", &payTemp->hoursUndertime);
+    if (payTemp->hoursUndertime == '-')
+        payTemp->hoursUndertime = 0;
 }
 
 float compute13thMonthPay(attendanceHistory head, int year)
 {
     /* 13th month pay is 1/12 of the annual gross income if person worked for
        more than a month within the given year. Not included in taxations nor deductions. */
-    float amount = 0, count = 0;
-    char yearFormatted[2] = {year % 100 / 10, year % 10};
+    float amount = 0;
+    int count = 0;
+    char yearFormatted[3] = {year % 100 / 10 + '0', year % 10 + '0'};
     List trav;
     for (trav = head; trav != NULL; trav = trav->link)
     {
         // compare the year part of the payroll ID
-        if (trav->payrollInfo.payrollID[0] == yearFormatted[0] && trav->payrollInfo.payrollID[1] == yearFormatted[1])
+        if (strncmp(trav->payrollInfo.payrollID,yearFormatted,2) == 0)
         {
             amount += trav->payrollInfo.grossIncome;
             count++;
         }
     }
-    return (count > 1) ? amount / 12 : 0;
+    return (count > 2) ? amount / 12.0 : 0;
 }
 
 /**
  * @brief computing total income of a person before deductions
  *
- * @param payDetails - differing salary rates based on time of an employee
- * @param attendance - attendance of an employee
+ * @param payDetails  differing salary rates based on time of an employee
+ * @param attendance  attendance of an employee
  * @return float - gross income
  */
 float computeGrossIncome(paymentDetails payDetails, payrollDetail *attendance, int payrollDate[])
@@ -1300,7 +1492,7 @@ float computeGrossIncome(paymentDetails payDetails, payrollDetail *attendance, i
  */
 float getFirstGrossIncome(employeeTable empTable, char empID[], char payrollIDFirstPeriod[])
 {
-    float ret;
+    float ret = 0;
     int index = searchEmployee(empTable, empID);
     List trav;
 
@@ -1308,11 +1500,8 @@ float getFirstGrossIncome(employeeTable empTable, char empID[], char payrollIDFi
     {
     }
     if (trav != NULL)
-
         ret = trav->payrollInfo.grossIncome;
-
     else
-
         return ret;
 }
 
@@ -1407,7 +1596,7 @@ float computeWithTax(float salary)
     float ret;
     salary *= 12;
     if (salary <= 250000)
-        ret = salary;
+        ret = 0;
     else if (salary > 250000 && salary <= 400000)
         ret = (salary - 250000) * 0.2;
     else if (salary > 400000 && salary <= 800000)
@@ -1433,7 +1622,7 @@ float computeContributions(float income)
     sss = computeSSS(income);
     phealth = computePHealth(income);
 
-    return pagibig + sss + phealth;
+    return (float)(pagibig + sss + phealth);
 }
 
 /**
@@ -1445,10 +1634,10 @@ float computeContributions(float income)
  */
 float computeNetSalary(float grossIncome, payrollDetail *ptrPd)
 {
-    ptrPd->contributions = computeContributions(grossIncome);
-    ptrPd->taxableIncome = grossIncome - ptrPd->contributions;
-    ptrPd->withTax = computeWithTax(ptrPd->taxableIncome);
-    return ptrPd->taxableIncome - ptrPd->withTax;
+    ptrPd->contributions = (float)(computeContributions(grossIncome));
+    ptrPd->taxableIncome = ptrPd->grossIncome - ptrPd->contributions;
+    ptrPd->withTax = (float)(computeWithTax(ptrPd->taxableIncome));
+    return ptrPd->taxableIncome - (float)(ptrPd->withTax);
 }
 
 /**
@@ -1484,7 +1673,7 @@ void createPayroll(employeeTable empTable, char companyName[])
 {
     int payrollDate[5] = {0}, x, index; // 0 - year, 1 - month, 2 - start day, 3 - end day, 4 - period
     float firstGrossIncome, totalGrossIncome;
-    char group = 0, *payrollId, period, payrollId1stPeriod[7] = {0};
+    char group = 0, *payrollId, period, payrollId1stPeriod[7] = {0}, payrollId3rdPeriod[7] = {0};
     employeeDetails employeeDetailTemp = {0};
     payrollDetail payrollDetailTemp = {};
     List *ptr, temp;
@@ -1537,7 +1726,7 @@ void createPayroll(employeeTable empTable, char companyName[])
                         }
                         else
                         {
-                            payrollDetailTemp.netSalary = 0;
+                            payrollDetailTemp.netSalary = payrollDetailTemp.grossIncome;
                         }
                         // insert payroll details to end of list
                         temp->payrollInfo = payrollDetailTemp;
@@ -1547,11 +1736,12 @@ void createPayroll(employeeTable empTable, char companyName[])
                         // 13th month pay consideration
                         if (payrollDate[1] == 12 && payrollDate[4] == 1)
                         {
-                            payrollDetail payrollDetail13thMonth = {0};
-                            payrollId1stPeriod[4] = '3';
+                            payrollDetail payrollDetail13thMonth = {};
+                            strcpy(payrollId3rdPeriod, payrollId);
+                            payrollId3rdPeriod[4] = '3';
                             strcpy(payrollDetail13thMonth.empID, employeeDetailTemp.empID);
-                            strcpy(payrollDetail13thMonth.payrollID, payrollId);
-                            payrollDetailTemp.netSalary = compute13thMonthPay(empTable[trav->index].history, payrollDate[0]);
+                            strcpy(payrollDetail13thMonth.payrollID, payrollId3rdPeriod);
+                            payrollDetail13thMonth.netSalary = compute13thMonthPay(empTable[trav->index].history, payrollDate[0]);
                             temp->link = (List)malloc(sizeof(struct cell));
                             temp->link->payrollInfo = payrollDetail13thMonth;
                             temp->link->link = NULL;
@@ -1571,4 +1761,392 @@ void createPayroll(employeeTable empTable, char companyName[])
     }
 }
 
+int updateEmployee(employeeTable empTable, employeeDetails newEmployee, int index)
+{
+    int ret = 0;
+    if (strcmp(empTable[index].employee.empID, newEmployee.empID) == 0)
+    {
+        empTable[index].employee = newEmployee;
+        ret = 1;
+    }
+    return ret;
+}
 
+int updateEmployeeToFile(char companyName[], employeeDetails newEmployee)
+{
+    int ret = 0, ndx = 0;
+    FILE *fp;
+    char fileName[40] = "";
+    employeeDetails catcher;
+    strcpy(fileName, companyName);
+    strcat(fileName, EMP_FILENAME);
+    fp = fopen(fileName, "r+");
+    if (fp != NULL)
+    {
+        while (fread(&catcher, sizeof(employeeDetails), 1, fp) != 0 && ret == 0)
+        {
+
+            if (strcmp(catcher.empID, newEmployee.empID) == 0)
+            {
+                fseek(fp, ndx * sizeof(employeeDetails), SEEK_SET);
+                fwrite(&newEmployee, sizeof(employeeDetails), 1, fp);
+                fseek(fp, (ndx + 1) * sizeof(employeeDetails), SEEK_SET);
+                ret = 1;
+            }
+            else
+                ndx++;
+        }
+    }
+    return ret;
+}
+
+int updateAttendanceRecord(attendanceHistory history, attendanceDetails newRecord)
+{
+    int ret = 0;
+    List trav;
+    for (trav = history; trav != NULL && strcmp(trav->payrollInfo.payrollID, newRecord.payrollID) != 0; trav = trav->link)
+    {
+    }
+    if (trav != NULL)
+    {
+        trav->payrollInfo = newRecord;
+        ret = 1;
+    }
+    return ret;
+}
+
+int updateAttendanceToFile(char companyName[], attendanceDetails newRecord)
+{
+    int ret = 0, ndx = 0;
+    FILE *fp;
+    char fileName[40] = "";
+    attendanceDetails catcher;
+    strcpy(fileName, companyName);
+    strcat(fileName, PAY_FILENAME);
+    fp = fopen(fileName, "r+");
+    if (fp != NULL)
+    {
+        while (fread(&catcher, sizeof(attendanceDetails), 1, fp) != 0 && ret == 0)
+        {
+            if (strcmp(catcher.payrollID, newRecord.empID) == 0 && strcmp(catcher.empID, newRecord.empID) == 0)
+            {
+                fseek(fp, ndx * sizeof(attendanceDetails), SEEK_SET);
+                fwrite(&newRecord, sizeof(attendanceDetails), 1, fp);
+                fseek(fp, (ndx + 1) * sizeof(attendanceDetails), SEEK_SET);
+                ret = 1;
+            }
+            else
+                ndx++;
+        }
+    }
+    return ret;
+}
+
+int editEmployee(employeeTable empTable, char companyName[])
+{
+    /* buffer for input validation */
+    char givenID[10];
+    char dateString[11], emailString[32], contactString[12];
+    int month, day, year, index;
+    float basicSalary = 0, overtimePay = 0;
+
+    int validFlag[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1}; /* check if all fields are correctly inputted */
+    int retValue = 0;                               /* return value */
+    int exitFlag = 0;                               /* condition if the loop will continue */
+    int i;                                          /* counter for loops */
+    int ch;
+
+    char choice; /* 0-9 = inputs, e = exit, c = create */
+    employeeInfo newEmployee;
+
+    system("cls");
+    printf("\n==========================================");
+    printf("\n            EDIT EMPLOYEE INFO            ");
+    printf("\n==========================================");
+    printf("\n\nEnter Employee ID: ");
+    fflush(stdin);
+    scanf("%s", givenID);
+
+    index = searchEmployee(empTable, givenID);
+    if (index != -1)
+    {
+        newEmployee = empTable[index];
+
+        while (!exitFlag) /* Loop until the exit flag is changed */
+        {
+            system("cls");
+            printf("\n==========================================");
+            printf("\n          EDIT EMPLOYEE (%s)              ", givenID);
+            printf("\n==========================================");
+            printf("\n[ 1 ] Last Name:              \t%s", newEmployee.employee.name.LName);
+            printf("\n[ 2 ] First Name:             \t%s", newEmployee.employee.name.fName);
+            printf("\n[ 3 ] MI:                     \t%c.", newEmployee.employee.name.MI);
+            printf("\n[ 4 ] Date employed(MM/DD/YY):\t%02d/%02d/%02d", newEmployee.employee.dateEmployed.month, newEmployee.employee.dateEmployed.day, newEmployee.employee.dateEmployed.year);
+            printf("\n[ 5 ] Email:                  \t%s", newEmployee.employee.contact.email);
+            printf("\n[ 6 ] Contact No.:            \t%s", newEmployee.employee.contact.phone);
+            printf("\n[ 7 ] Basic Salary:           \t%.02f", newEmployee.employee.details.basicSalary);
+            printf("\n[ 8 ] Overtime Pay:           \t%.02f", newEmployee.employee.details.overtimeHourlyRate);
+            printf("\n[ 9 ] Department:             \t%c", newEmployee.employee.department);
+            printf("\n[ 0 ] Employee Status:        \t%s", (newEmployee.employee.status) ? "Inactive" : "Active");
+            printf("\n==========================================");
+            printf("\n[c] Confirm changes | [e] Exit ");
+            printf("\n\nChoice: ");
+            fflush(stdin);
+            scanf("%c", &choice);
+            while ((ch = getchar()) != '\n' && ch != EOF)
+                ; // To eat up all the characters left behind by scanf call including '\n'.
+
+            switch (choice)
+            {
+            case '1':
+                printf("\nLast Name: ");
+                fflush(stdin);
+                gets(newEmployee.employee.name.LName);
+                if (nameValidation(newEmployee.employee.name.LName))
+                {
+                    validFlag[0] = 1;
+                }
+                else
+                {
+                    validFlag[0] = 0;
+                    strcpy(newEmployee.employee.name.LName, "");
+                    printf("Invalid input\n");
+                    printf("\nPress any key to continue");
+                    getch();
+                }
+                break;
+
+            case '2':
+                printf("\nFirst Name: ");
+                fflush(stdin);
+                gets(newEmployee.employee.name.fName);
+                if (nameValidation(newEmployee.employee.name.fName))
+                {
+                    validFlag[1] = 1;
+                }
+                else
+                {
+                    validFlag[1] = 0;
+                    strcpy(newEmployee.employee.name.fName, "");
+                    printf("Invalid input\n");
+                    printf("\nPress any key to continue");
+                    getch();
+                }
+                break;
+
+            case '3':
+                printf("\nMiddle Initial (enter a space if N/A): ");
+                fflush(stdin);
+                scanf("%c", &newEmployee.employee.name.MI);
+                while ((ch = getchar()) != '\n' && ch != EOF)
+                    ;
+                if (isalpha(newEmployee.employee.name.MI) || isspace(newEmployee.employee.name.MI))
+                {
+                    newEmployee.employee.name.MI = toupper(newEmployee.employee.name.MI);
+                    validFlag[2] = 1;
+                }
+                else
+                {
+                    validFlag[2] = 0;
+                    newEmployee.employee.name.MI = '\0';
+                    printf("Invalid input\n");
+                    printf("\nPress any key to continue");
+                    getch();
+                }
+
+                break;
+
+            case '4':
+                printf("\nDate employed(MM/DD/YY): ");
+                fflush(stdin);
+                gets(dateString);
+
+                char *token = strtok(dateString, "/"); /* separates date by '/' */
+                month = atoi(token);                   /* converts string to int */
+                token = strtok(NULL, "/");
+                day = atoi(token);
+                token = strtok(NULL, "/");
+                year = atoi(token);
+
+                if (dateValidation(month, day, year))
+                {
+                    newEmployee.employee.dateEmployed.month = month;
+                    token = strtok(NULL, "/");
+                    newEmployee.employee.dateEmployed.day = day;
+                    token = strtok(NULL, "/");
+                    newEmployee.employee.dateEmployed.year = year;
+                    validFlag[3] = 1;
+                }
+                else
+                {
+                    printf("Invalid input\n");
+                    printf("\nPress any key to continue");
+                    getch();
+                }
+
+                break;
+
+            case '5':
+                printf("\nEmail: ");
+                fflush(stdin);
+                gets(emailString);
+                if (emailValidation(emailString))
+                {
+                    strcpy(newEmployee.employee.contact.email, emailString);
+                    validFlag[4] = 1;
+                }
+                else
+                {
+                    printf("Invalid Input");
+                    printf("\nPress any key to continue");
+                    getch();
+                }
+
+                break;
+
+            case '6':
+                printf("\nContact No.: ");
+                fflush(stdin);
+                gets(contactString);
+                if (phoneValidation(contactString))
+                {
+                    strcpy(newEmployee.employee.contact.phone, contactString);
+                    validFlag[5] = 1;
+                }
+                else
+                {
+                    printf("Input invalid");
+                    printf("\nPress any key to continue");
+                    getch();
+                }
+
+                break;
+
+            case '7':
+                printf("\nBasic Monthly Salary: ");
+                fflush(stdin);
+                scanf("%f", &basicSalary);
+                if (payValidation(basicSalary))
+                {
+                    newEmployee.employee.details.basicSalary = basicSalary;
+                    validFlag[6] = 1;
+                }
+                else
+                {
+                    printf("Input invalid");
+                    printf("\nPress any key to continue");
+                    getch();
+                }
+                break;
+
+            case '8':
+                printf("\nOvertime Hourly Pay: ");
+                fflush(stdin);
+                scanf("%f", &overtimePay);
+                if (payValidation(overtimePay))
+                {
+                    newEmployee.employee.details.overtimeHourlyRate = overtimePay;
+                    validFlag[7] = 1;
+                }
+                else
+                {
+                    printf("Input invalid - please enter a positive amount");
+                    printf("\nPress any key to continue");
+                    getch();
+                }
+                break;
+
+            case '9':
+                printf("\nDepartment [A-Z]: ");
+                fflush(stdin);
+                scanf("%c", &newEmployee.employee.department);
+                while ((ch = getchar()) != '\n' && ch != EOF)
+                    ;
+                if (isalpha(newEmployee.employee.department))
+                {
+                    newEmployee.employee.department = toupper(newEmployee.employee.department);
+                    validFlag[8] = 1;
+                }
+                else
+                {
+                    validFlag[8] = 0;
+                    newEmployee.employee.name.MI = '\0';
+                    printf("Invalid input. Please enter a letter\n");
+                    printf("\nPress any key to continue");
+                    getch();
+                }
+
+                break;
+
+            case '0':
+                printf("\n[ 0 ] Active");
+                printf("\n[ 1 ] Inactive");
+                printf("\nStatus: ");
+                fflush(stdin);
+                scanf("%c", &choice);
+                while ((ch = getchar()) != '\n' && ch != EOF)
+                    ;
+                if (choice == '0' || choice == '1')
+                { /*check if input is valid*/
+                    newEmployee.employee.status = choice - '0';
+                }
+                else
+                {
+                    printf("Invalid input");
+                    printf("\nPress any key to continue");
+                    getch();
+                }
+                break;
+
+            case 'c':
+                for (i = 0; i < 9 && validFlag[i] != 0; i++)
+                {
+                }
+                if (i == 9)
+                {
+                    if (updateEmployee(empTable, newEmployee.employee, index) && updateEmployeeToFile(companyName, newEmployee.employee))
+                    {
+                        printf("\nSuccessfully updated employee info!");
+                        printf("\n\nPress any key to continue");
+                        getch();
+                        retValue = 1;
+                    }
+                    else
+                    {
+                        printf("Error in updating employee info. Please try again.\n");
+                        printf("\nPress any key to continue");
+                        getch();
+                        retValue = 0;
+                    }
+
+                    exitFlag = 1; /* prompts to exit the loop */
+                }
+                else
+                {
+                    printf("Missing input at [%d]\n", i + 1);
+                    printf("\nPress any key to continue");
+                    getch();
+                }
+                break;
+
+            case 'e':
+                retValue = -1;
+                exitFlag = 1; /* prompts to exit the loop with the default return value of 0*/
+                break;
+
+            default:
+                printf("Not a valid choice!\n");
+                printf("\nPress any key to continue");
+                getch();
+            }
+        }
+    }
+    else
+    {
+        printf("\nError: Emplyoee does not exist. ");
+        printf("\n\nPress any key to exit...");
+        getch();
+    }
+
+    return retValue;
+}
