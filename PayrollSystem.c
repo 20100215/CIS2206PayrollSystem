@@ -149,14 +149,14 @@ int displayEmployees(employeeTable empTable, employeeList listEmployee, char dep
 void clearEmployeeLL(employeeList listEmployee);
 
 void viewEmployee(employeeTable empTable);
-int displayAdvancedSalaryInfo(attendanceHistory head, int numEntries)
+int displayAdvancedSalaryInfo(attendanceHistory head, int numEntries);
 
 void createPayroll(employeeTable empTable, char companyName[]);
 int getIntInput(char question[]);
 int askPayrollPeriodDetails(char *group, int payrollDate[]);
-char* generatePayrollID(char group, int payrollDate[])
+char* generatePayrollID(char group, int payrollDate[]);
 void inputAttendanceInfo(employeeDetails empTemp, payrollDetail *payTemp);
-float computeGrossIncome(paymentDetails payDetails, payrollDetail *attendance, int payrollDate[])
+float computeGrossIncome(paymentDetails payDetails, payrollDetail *attendance, int payrollDate[]);
 float getFirstGrossIncome(employeeTable empTable, char empID[], char payrollIDFirstPeriod[]);
 float computeSSS(float income);
 float computePHealth(float income);
@@ -164,7 +164,7 @@ float computeContributions(float income);
 float computeWithTax(float salary);
 float computeNetSalary(float grossIncome, payrollDetail *ptrPd);
 float compute13thMonthPay(attendanceHistory head, int year);
-int addPayrollToFile(char companyName[], payrollDetail pd)
+int addPayrollToFile(char companyName[], payrollDetail pd);
 
 int editEmployee(employeeTable empTable, char companyName[]);
 int updateEmployee(employeeTable empTable, employeeDetails newEmployee, int index);
