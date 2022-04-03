@@ -1301,8 +1301,8 @@ void viewEmployee(employeeTable empTable)
                         int month = (temp.payrollID[2] - '0') * 10 + temp.payrollID[3] - '0';
                         int year = 2000 + (temp.payrollID[0] - '0') * 10 + temp.payrollID[1] - '0';
                         int period = temp.payrollID[4] - '0';
-                        int day1 = (period == 1) ? 1 : monthDays[month - 1] / 2;
-                        int day2 = (period == 1) ? monthDays[month - 1] / 2 + 1 : monthDays[month - 1];
+                        int day1 = (period == 1) ? 1 : monthDays[month - 1] / 2 + 1;
+                        int day2 = (period == 1) ? monthDays[month - 1] / 2 : monthDays[month - 1];
                         sum += temp.netSalary;
                         if (period != 3)
                             printf("\n  [%2d]  %02d/%02d/%04d - %02d/%02d/%04d      P %9.2f", count, month, day1, year, month, day2, year, temp.netSalary);
@@ -1427,7 +1427,7 @@ char *generatePayrollID(char group, int payrollDate[])
     char *ID, year[3], month[3], period[2];
 
     yearLastTwoDigits = payrollDate[0] % 100;
-    sprintf(year, "%05d", yearLastTwoDigits);
+    sprintf(year, "%02d", yearLastTwoDigits);
     sprintf(month, "%02d", payrollDate[1]);
     sprintf(period, "%1d", payrollDate[4]);
 
