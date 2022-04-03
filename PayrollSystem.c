@@ -6,6 +6,8 @@
  *           J. Guzman, E. Celdran, I. Woogue, M. Valeros, W. Dayata 
  * Date: March 14-29, 2022
  *
+ * GitHub Repository Link: https://github.com/20100215/CIS2206PayrollSystem.git
+ * 
  * ************************************************************/
 
 /***** HEADER FILES TO INCLUDE *****/
@@ -256,7 +258,8 @@ int main()
 
 /**
  * @brief initializes the data and loads the file, sets up the internal memory
- * @param - gets pointer of employeeTable to initialize with the company name
+ * @param empTable pointer to the employee hash table
+ * @param companyName name of company
  * @return - implicit return
  */
 void initialize(employeeTable empTable, char companyName[])
@@ -417,20 +420,22 @@ int hash(char empID[])
 
 /**
  * @brief inserts employee to the hash table
- * @param hash table and employee structure
+ * @param empTable employee hash table
+ * @param emp employee structure
  * @return returns 1 if successful and 0 if unsuccessful
  */
 int insertEmployee(employeeTable empTable, employeeInfo emp)
 {
     int ctr, index, retVal = 0;
-    for (ctr = 0, index = hash(emp.employee.empID); ctr < SIZE; ctr++)
+    index = hash(emp.employee.empID);
+    for (ctr = 0; ctr < SIZE; ctr++)
     {
         if (strcmp(empTable[index].employee.empID, "EMPTY") == 0 || strcmp(empTable[index].employee.empID, "DELETED") == 0)
         {
             empTable[index] = emp;
             break;
         }
-        index = (index + 1) % SIZE;
+        index = (hash(emp.employee.empID) + 1) % SIZE;
     }
     return (ctr < SIZE) ? 1 : 0;
 }
@@ -467,9 +472,7 @@ int insertAttendance(employeeTable empTable, attendanceDetails att)
     if (index != -1)
     {
         // traverse linked list (sorted in increasing order)
-        for (ptr = &empTable[index].history; *ptr != NULL && strcmp((*ptr)->payrollInfo.payrollID, att.payrollID) < 0; ptr = &(*ptr)->link)
-        {
-        }
+        for (ptr = &empTable[index].history; *ptr != NULL && strcmp((*ptr)->payrollInfo.payrollID, att.payrollID) < 0; ptr = &(*ptr)->link)  {}
         temp = (List)malloc(sizeof(struct cell));
         if (temp != NULL)
         {
@@ -755,6 +758,7 @@ int addEmployee(employeeTable empTable, char companyName[])
             }
             else
             {
+                validFlag[0] = 0;
                 strcpy(newEmployee.employee.name.LName, "");
                 printf("Invalid input\n");
                 printf("\nPress any key to continue");
@@ -772,6 +776,7 @@ int addEmployee(employeeTable empTable, char companyName[])
             }
             else
             {
+                validFlag[1] = 0;
                 strcpy(newEmployee.employee.name.fName, "");
                 printf("Invalid input\n");
                 printf("\nPress any key to continue");
@@ -792,6 +797,7 @@ int addEmployee(employeeTable empTable, char companyName[])
             }
             else
             {
+                validFlag[2] = 0;
                 newEmployee.employee.name.MI = ' ';
                 printf("Invalid input\n");
                 printf("\nPress any key to continue");
@@ -1368,7 +1374,7 @@ int askPayrollPeriodDetails(char *group, int payrollDate[])
         payrollDate[1] = getIntInput("Enter the month: ");
         payrollDate[2] = getIntInput("Enter the start date: ");
         payrollDate[3] = getIntInput("Enter the end date: ");
-        payrollDate[4] = payrollDate[2] == 1 ? 1 : 2;
+        payrollDate[4] = payrollDate[2] == 1 ? 1 : 2; /*period number: 1 or 2*/
         if (dateValidation(payrollDate[1], payrollDate[2], payrollDate[0] % 100) && dateValidation(payrollDate[1], payrollDate[2], payrollDate[4] % 100) && payrollDate[2] < payrollDate[3])
         {
             do
@@ -1421,7 +1427,7 @@ char *generatePayrollID(char group, int payrollDate[])
     char *ID, year[3], month[3], period[2];
 
     yearLastTwoDigits = payrollDate[0] % 100;
-    sprintf(year, "%02d", yearLastTwoDigits);
+    sprintf(year, "%05d", yearLastTwoDigits);
     sprintf(month, "%02d", payrollDate[1]);
     sprintf(period, "%1d", payrollDate[4]);
 
@@ -1486,13 +1492,15 @@ float compute13thMonthPay(attendanceHistory head, int year)
  */
 float computeGrossIncome(paymentDetails payDetails, payrollDetail *attendance, int payrollDate[])
 {
+    int monthDays[] = {31,28,31,30,31,30,31,31,30,31,30,31};
+
     float absentDeduction, overtimePay, undertimeDeduction, bisalary;
     int numWorkdays = payrollDate[3] - payrollDate[2];
     bisalary = payDetails.basicSalary / 2;
     absentDeduction = attendance->daysAbsent / numWorkdays * payDetails.basicSalary;
     overtimePay = payDetails.overtimeHourlyRate * attendance->hoursOvertime;
     /* DOLE's standard number of work hours a day = 8 */
-    undertimeDeduction = payDetails.basicSalary / 30 / 8 * attendance->hoursUndertime;
+    undertimeDeduction = payDetails.basicSalary / monthDays[payrollDate[1] - 1] / 8 * attendance->hoursUndertime;
 
     return bisalary - absentDeduction + overtimePay - undertimeDeduction;
 }
@@ -1843,7 +1851,7 @@ int updateAttendanceToFile(char companyName[], attendanceDetails newRecord)
     {
         while (fread(&catcher, sizeof(attendanceDetails), 1, fp) != 0 && ret == 0)
         {
-            if (strcmp(catcher.payrollID, newRecord.empID) == 0 && strcmp(catcher.empID, newRecord.empID) == 0)
+            if (strcmp(catcher.payrollID, newRecord.payrollID) == 0 && strcmp(catcher.empID, newRecord.empID) == 0)
             {
                 fseek(fp, ndx * sizeof(attendanceDetails), SEEK_SET);
                 fwrite(&newRecord, sizeof(attendanceDetails), 1, fp);
