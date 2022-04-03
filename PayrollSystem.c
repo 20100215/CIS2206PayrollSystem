@@ -1,12 +1,13 @@
 /**************************************************************
  *
- * CIS 2206 Practice Activity #1 - Payroll System using C
+ * @file CIS 2206 Practice Activity - Payroll System using C
  * Created by: Team 1
- * Members: C. Stewart, J. Leano, J. Samson,  J. Rosales, J. Tejada, I. Monzales,
- *           J. Guzman, E. Celdran, I. Woogue, M. Valeros, W. Dayata 
- * Date: March 14 - April 3, 2022
- *
- * GitHub Repository Link: https://github.com/20100215/CIS2206PayrollSystem.git
+ * Developers: C. Stewart, J. Leano, J. Samson,  J. Rosales, J. Tejada, I. Monzales,
+ *             J. Guzman, E. Celdran, I. Woogue, M. Valeros, W. Dayata 
+ * @date March 14, 2022 - April 3, 2022
+ * @version 2.01
+ * 
+ * @link GitHub Repository Link: https://github.com/20100215/CIS2206PayrollSystem.git
  * 
  * ************************************************************/
 
@@ -26,7 +27,9 @@
  * Company name will be inputted at main menu upon program and data initialization.
  */
 
+
 /***** DATA STRUCTURE DEFINITION *****/
+
 typedef struct
 {
     char LName[16]; // last name
@@ -49,8 +52,8 @@ typedef struct
 
 typedef struct
 {
-    char email[32]; // must have '@' and '.' for valid email
-    char phone[12]; // 11-digit mobile number
+    char email[32]; // CONSTRAINT: Must have '@' and '.' for valid email
+    char phone[12]; // CONSTRAINT: Must be 11-digit and starts with 09
 } contactDetails;
 
 typedef struct
@@ -81,18 +84,12 @@ typedef struct
     /*In view specific employee's priliminary displays are payroll ID and Net Salary only*/
 } payrollDetail, attendanceDetails; // the structure to be written in the 'PayrollFile.bin'
 
-/* Linked list for attendance details */
+/* Linked list for attendance/payroll details */
 typedef struct cell
 {
     payrollDetail payrollInfo;
     struct cell *link;
 } cellType, *attendanceHistory, *List;
-
-typedef struct
-{
-    char group;
-    int numOfEmployees;
-} employeesInGroup;
 
 /* Employee structure, with attendance details LL pointer */
 typedef struct
@@ -125,7 +122,9 @@ typedef struct node
     struct node *link;
 } nodeType, *employeeList[26], *List2; // the structure for sorting the employees by department
 
+
 /***** FUNCTION PROTOTYPES *****/
+
 void initialize(employeeTable empTable, char companyName[]);
 int initEmpList(employeeTable empTable, char companyName[]);
 int initAttendanceList(employeeTable empTable, char companyName[]);
@@ -145,9 +144,9 @@ int phoneValidation(char phone[]);
 int payValidation(float amount);
 int addEmployee(employeeTable empTable, char companyName[]);
 
-void viewEmployeeList(employeeTable empTable);                                      // view entire list of employees
-void sortEmployees(employeeTable empTable, employeeList listEmployee);              // sort employees by department
-int displayEmployees(employeeTable empTable, employeeList listEmployee, char dept); // display employee given by a department
+void viewEmployeeList(employeeTable empTable);                                      
+void sortEmployees(employeeTable empTable, employeeList listEmployee);              
+int displayEmployees(employeeTable empTable, employeeList listEmployee, char dept); 
 void clearEmployeeLL(employeeList listEmployee);
 
 void viewEmployee(employeeTable empTable);
@@ -176,7 +175,11 @@ int updateAttendanceToFile(char companyName[], attendanceDetails newRecord);
 
 /*End of initialization function Protypes */
 
-/***** main() function - Handles the main menu and calls the subfunction *****/
+/**
+ * @brief Handles and displays the main menu, facilitates the program variable initialization, 
+ *          and invokes the appropriate function calls for the action chosen
+ * @return 0 - successful exit of the program
+ */
 int main()
 {
 
@@ -188,10 +191,11 @@ int main()
     char choice; // for switch statement main menu
     int status;  // to check if operation was successful
 
+    system("cls");
     printf("\n===================================================");
     printf("\n|                     Welcome!                    |");
     printf("\n|            CIS 2206 - PAYROLL SYSTEM            |");
-    printf("\n|             Version 1.0 - 3/21/2022             |");
+    printf("\n|             Version 2.01 - 4/3/2022             |");
     printf("\n|                                                 |");
     printf("\n| Developers: C. Stewart, J. Leano, J. Samson,    |");
     printf("\n|             J. Rosales, J. Tejada, I. Monzales, |");
@@ -257,10 +261,9 @@ int main()
 /***** FUNCTION DEFINITIONS *****/
 
 /**
- * @brief initializes the data and loads the file, sets up the internal memory
- * @param empTable pointer to the employee hash table
- * @param companyName name of company
- * @return - implicit return
+ * @brief Initializes the data and loads the files, sets up the internal memory
+ * @param empTable employee hash table
+ * @param companyName name of the company
  */
 void initialize(employeeTable empTable, char companyName[])
 {
@@ -335,9 +338,10 @@ void initialize(employeeTable empTable, char companyName[])
 }
 
 /**
- * @brief fetches data from the employee file and loads to the hash table
- * @param - gets pointer of employeeTable and name of company
- * @return - returns the number of records read and -1 if no file found
+ * @brief Fetches data from the employee file and loads to the hash table
+ * @param empTable employee hash table
+ * @param companyName name of the company
+ * @return number of records read and -1 if no file found
  */
 int initEmpList(employeeTable empTable, char companyName[])
 {
@@ -368,9 +372,10 @@ int initEmpList(employeeTable empTable, char companyName[])
 }
 
 /**
- * @brief fetches data from the attendance file and loads to the LL portion of the hash table
- * @param - gets pointer of employeeTable and name of company
- * @return - returns the number of records read and -1 if no file found
+ * @brief Fetches data from the attendance file and loads to the LL portion of the hash table
+ * @param empTable employee hash table
+ * @param companyName name of the company
+ * @return number of records read and -1 if no file found
  */
 int initAttendanceList(employeeTable empTable, char companyName[])
 {
@@ -403,9 +408,9 @@ int initAttendanceList(employeeTable empTable, char companyName[])
 }
 
 /**
- * @brief multiplication hashing method
- * @param employee id
- * @return returns the hash value
+ * @brief Multiplication hashing method
+ * @param empID the unique identifier of the employee
+ * @return value copmputed by the custom hash function
  */
 int hash(char empID[])
 {
@@ -419,10 +424,10 @@ int hash(char empID[])
 }
 
 /**
- * @brief inserts employee to the hash table
+ * @brief Inserts employee record to the hash table
  * @param empTable employee hash table
- * @param emp employee structure
- * @return returns 1 if successful and 0 if unsuccessful
+ * @param emp employee info structure
+ * @return 1 if successful and 0 if unsuccessful
  */
 int insertEmployee(employeeTable empTable, employeeInfo emp)
 {
@@ -441,9 +446,10 @@ int insertEmployee(employeeTable empTable, employeeInfo emp)
 }
 
 /**
- * @brief checks the position of a given employee in the hash table
- * @param hash table and the employee id
- * @return returns the index of the employee table where it exists and -1 if does not exist
+ * @brief Checks the position of a given employee in the hash table
+ * @param empTable employee hash table
+ * @param empID employee unique identifier
+ * @return index of the employee table where it exists and -1 if does not exist
  */
 int searchEmployee(employeeTable empTable, char empID[])
 {
@@ -460,9 +466,10 @@ int searchEmployee(employeeTable empTable, char empID[])
 }
 
 /**
- * @brief inserts attendance record to the hash table
- * @param hash table and attendance details structure
- * @return returns 1 if successful and 0 if unsuccessful
+ * @brief Inserts attendance record to the proper position in the LL of the employee in hash table
+ * @param empTable employee hash table
+ * @param att attendance/payroll record structure
+ * @return 1 if action is successful and 0 if unsuccessful
  */
 int insertAttendance(employeeTable empTable, attendanceDetails att)
 {
@@ -486,9 +493,10 @@ int insertAttendance(employeeTable empTable, attendanceDetails att)
 }
 
 /**
- * @brief appends new employee record to the file
- * @param company name and employee structure
- * @return returns 1 if successful and 0 if unsuccessful
+ * @brief Appends new employee record to the file
+ * @param companyName name of the company
+ * @param emp employee info structure
+ * @return 1 if action is successful and 0 if unsuccessful
  */
 int insertEmployeeToFile(char companyName[], employeeInfo emp)
 {
@@ -513,9 +521,10 @@ int insertEmployeeToFile(char companyName[], employeeInfo emp)
 }
 
 /**
- * @brief appends new attendance record to the file
- * @param company name and employee structure
- * @return returns 1 if successful and 0 if unsuccessful
+ * @brief Appends new attendance record to the file
+ * @param companyName name of the company
+ * @param att attendance/payroll details structure
+ * @return 1 if action is successful and 0 if unsuccessful
  */
 int insertAttendanceToFile(char companyName[], attendanceDetails att)
 {
@@ -538,9 +547,10 @@ int insertAttendanceToFile(char companyName[], attendanceDetails att)
 }
 
 /**
- * @brief assigns a newly created employee an id
- * @param hash table and the newly created employee
- * @return returns 1 if successful and 0 if unsuccessful
+ * @brief Assigns a newly created employee an id
+ * @param empTable employee hash table
+ * @param emp pointer to employee info structure to be manipulated
+ * @return 1 if action is successful and 0 if unsuccessful
  */
 int assignEmployeeID(employeeTable empTable, employeeInfo *emp)
 {
@@ -565,9 +575,9 @@ int assignEmployeeID(employeeTable empTable, employeeInfo *emp)
 }
 
 /**
- * @brief checks if name is valid (only alphabet characters and spaces)
- * @param name
- * @return returns 1 if valid and 0 if invalid
+ * @brief Checks if name is valid (only alphabet characters and spaces)
+ * @param name name string
+ * @return 1 if valid and 0 if invalid
  */
 int nameValidation(char name[])
 {
@@ -579,9 +589,11 @@ int nameValidation(char name[])
 }
 
 /**
- * @brief checks if date is valid
- * @param month, day, and year
- * @return returns 1 if valid and 0 if invalid
+ * @brief Checks if date is valid
+ * @param month a value representing a calendar month
+ * @param day a value representing a calendar day
+ * @param year a value representing a calendar year (last 2 digits)
+ * @return 1 if valid and 0 if invalid
  */
 int dateValidation(int month, int day, int year)
 {
@@ -608,9 +620,9 @@ int dateValidation(int month, int day, int year)
 }
 
 /**
- * @brief checks if email is valid
- * @param email string
- * @return returns 1 if valid and 0 if invalid
+ * @brief Checks if email is valid
+ * @param email email string
+ * @return 1 if valid and 0 if invalid
  */
 int emailValidation(char email[]) /* magic code, sorry daan wayne hahaha */
 {
@@ -648,9 +660,9 @@ int emailValidation(char email[]) /* magic code, sorry daan wayne hahaha */
 }
 
 /**
- * @brief checks if phone number is valid
- * @param phone string
- * @return returns 1 if valid and 0 if invalid
+ * @brief Checks if phone number is valid
+ * @param phone phone string
+ * @return 1 if valid and 0 if invalid
  */
 int phoneValidation(char phone[])
 {
@@ -666,9 +678,9 @@ int phoneValidation(char phone[])
 }
 
 /**
- * @brief checks if salary or payment is valid
- * @param amount
- * @return returns 1 if valid and 0 if invalid
+ * @brief Checks if salary or payment is valid
+ * @param amount amount of a particular pay, in PHP
+ * @return 1 if valid and 0 if invalid
  */
 int payValidation(float amount)
 {
@@ -676,9 +688,10 @@ int payValidation(float amount)
 }
 
 /**
- * @brief adds employee to the hash table based on user input
- * @param hash table
- * @return returns 1 if successful, 0 if unsuccessful, and -1 if cancelled
+ * @brief Handles the add new employee submenu
+ * @param empTable employee hash table
+ * @param companyName name of the company
+ * @return 1 if action is successful, 0 if unsuccessful, and -1 if cancelled
  */
 int addEmployee(employeeTable empTable, char companyName[])
 {
@@ -734,8 +747,8 @@ int addEmployee(employeeTable empTable, char companyName[])
         printf("\n[ 4 ] Date employed(MM/DD/YY):\t%02d/%02d/%02d", newEmployee.employee.dateEmployed.month, newEmployee.employee.dateEmployed.day, newEmployee.employee.dateEmployed.year);
         printf("\n[ 5 ] Email:                  \t%s", newEmployee.employee.contact.email);
         printf("\n[ 6 ] Contact No.:            \t%s", newEmployee.employee.contact.phone);
-        printf("\n[ 7 ] Basic Salary:           \t%.02f", newEmployee.employee.details.basicSalary);
-        printf("\n[ 8 ] Overtime Pay:           \t%.02f", newEmployee.employee.details.overtimeHourlyRate);
+        printf("\n[ 7 ] Basic Salary (PHP):     \t%.02f", newEmployee.employee.details.basicSalary);
+        printf("\n[ 8 ] Overtime Pay (PHP):     \t%.02f", newEmployee.employee.details.overtimeHourlyRate);
         printf("\n[ 9 ] Department:             \t%c", newEmployee.employee.department);
         printf("\n[ 0 ] Employee Status:        \t%s", (newEmployee.employee.status) ? "Inactive" : "Active");
         printf("\n==========================================");
@@ -1004,9 +1017,8 @@ int addEmployee(employeeTable empTable, char companyName[])
 }
 
 /**
- * @brief - view entire list of employees or by department
- * @param describe the parameters
- * @return state what the function returns
+ * @brief Handles the view employees submenu, and prompt user the mode of display
+ * @param empTable employee hash table
  */
 void viewEmployeeList(employeeTable empTable)
 {
@@ -1085,8 +1097,10 @@ void viewEmployeeList(employeeTable empTable)
 }
 
 /**
- * @brief - display all employees in a given department
- * @param - list of employees, department name
+ * @brief Display all employees in a given department
+ * @param empTable employee hash table
+ * @param listEmployee populated dictionary of indices in hash table corresponding to employees, sorted by name and arranged by department
+ * @param dept department to display
  * @return number of entries displayed, 0 if none displayed
  */
 int displayEmployees(employeeTable empTable, employeeList listEmployee, char dept)
@@ -1112,9 +1126,9 @@ int displayEmployees(employeeTable empTable, employeeList listEmployee, char dep
 }
 
 /**
- * @brief - sort employees by department
- * @param - list of employees
- * @return state what the function returns
+ * @brief Creates a dictionary of employee by storing the indices in hash table, sorted by last name and department 
+ * @param empTable employee hash table
+ * @param listEmployee initialized dictionary of indices in hash table corresponding to employees, to be sorted by name and arranged by department
  */
 void sortEmployees(employeeTable empTable, employeeList listEmployee)
 {
@@ -1140,6 +1154,10 @@ void sortEmployees(employeeTable empTable, employeeList listEmployee)
     }
 }
 
+/**
+ * @brief Frees all dynamically allocated memory in the employee index dictionary 
+ * @param listEmployee populated dictionary of indices in hash table corresponding to employees, to be sorted by name and arranged by department
+ */
 void clearEmployeeLL(employeeList listEmployee)
 {
     int index;
@@ -1155,6 +1173,12 @@ void clearEmployeeLL(employeeList listEmployee)
     }
 }
 
+/**
+ * @brief Displays detailed salary/pay breakdown of a chosen payroll record 
+ * @param head linked list pointer of the attendance/payroll history list
+ * @param numEntries number of entries detected in the attendance/payroll history linked list
+ * @return 1 if action is successful and 0 if cancelled
+ */
 int displayAdvancedSalaryInfo(attendanceHistory head, int numEntries)
 {
     int flag = 0, ctr = 1;
@@ -1226,6 +1250,10 @@ int displayAdvancedSalaryInfo(attendanceHistory head, int numEntries)
     return 1;
 }
 
+/**
+ * @brief Handles the view specific employee info submenu 
+ * @param empTable employee info table
+ */
 void viewEmployee(employeeTable empTable)
 {
     int index, count;
@@ -1237,7 +1265,7 @@ void viewEmployee(employeeTable empTable)
 
     system("cls");
     printf("\n==========================================");
-    printf("\n       VIEW SPECIFIC EMPLOYEE	INFO        ");
+    printf("\n       VIEW SPECIFIC EMPLOYEE INFO        ");
     printf("\n==========================================");
     printf("\n\nEnter Employee ID: ");
     fflush(stdin);
@@ -1273,8 +1301,8 @@ void viewEmployee(employeeTable empTable)
                 printf("\nDate employed(MM/DD/YY):\t%02d/%02d/%02d", empTable[index].employee.dateEmployed.month, empTable[index].employee.dateEmployed.day, empTable[index].employee.dateEmployed.year);
                 printf("\nEmail address:          \t%s", empTable[index].employee.contact.email);
                 printf("\nMobile number:          \t%s", empTable[index].employee.contact.phone);
-                printf("\nBasic Salary:           \t%.02f", empTable[index].employee.details.basicSalary);
-                printf("\nOvertime Pay:           \t%.02f", empTable[index].employee.details.overtimeHourlyRate);
+                printf("\nBasic Salary:           \tP %.02f", empTable[index].employee.details.basicSalary);
+                printf("\nOvertime Pay:           \tP %.02f", empTable[index].employee.details.overtimeHourlyRate);
                 printf("\nDepartment:             \t%c", empTable[index].employee.department);
                 printf("\nEmployee Status:        \t%s\n", (empTable[index].employee.status) ? "Inactive" : "Active");
                 printf("\n===================================================");
@@ -1335,9 +1363,9 @@ void viewEmployee(employeeTable empTable)
 }
 
 /**
- * @brief Get user int input
- * @param question - prompt question
- * @return int - user int input
+ * @brief Get integer input from the user
+ * @param question prompt question
+ * @return integer input from the user
  */
 int getIntInput(char question[])
 {
@@ -1349,14 +1377,9 @@ int getIntInput(char question[])
 }
 
 /**
- * @brief Asking for the group and the dates for the payroll
- *
- * @param group - update the group variable in the createPayroll function
- * @param payrollDate - 0 - year
- *                    - 1 - month
- *                    - 2 - start date
- *                    - 3 - end date
- *                    - 4 - period
+ * @brief Prompt user input for the group and the dates for the payroll
+ * @param group pointer to group variable in the createPayroll function
+ * @param payrollDate array: [0] - year, [1] - month, [2] start date, [3] end date, [4] period (1 or 2)
  * @return 1 if proceed to create payroll or 0 if abort
  */
 int askPayrollPeriodDetails(char *group, int payrollDate[])
@@ -1411,15 +1434,10 @@ int askPayrollPeriodDetails(char *group, int payrollDate[])
 }
 
 /**
- * @brief Generates the payroll ID based on group and payrollDate[]
- *
- * @param group - A, B, C, etc.
- * @param payrollDate - 0 - year
- *                    - 1 - month
- *                    - 2 - start date
- *                    - 3 - end date
- *                    - 4 - period
- * @return char* - generated Payroll ID
+ * @brief Generates the payroll ID based on group and payroll date information
+ * @param group department chosen
+ * @param payrollDate array: [0] - year, [1] - month, [2] start date, [3] end date, [4] period (1 or 2)
+ * @return generated Payroll ID
  */
 char *generatePayrollID(char group, int payrollDate[])
 {
@@ -1440,6 +1458,11 @@ char *generatePayrollID(char group, int payrollDate[])
     return ID;
 }
 
+/**
+ * @brief Prompts user input of attendance information for the given employee
+ * @param empTemp concerned employee information
+ * @param payTemp pointer to the structure of the attendance record to be written
+ */
 void inputAttendanceInfo(employeeDetails empTemp, payrollDetail *payTemp)
 {
     if (isspace(empTemp.name.MI))
@@ -1463,6 +1486,12 @@ void inputAttendanceInfo(employeeDetails empTemp, payrollDetail *payTemp)
         payTemp->hoursUndertime = 0;
 }
 
+/**
+ * @brief Computes for the 13th month pay of an employee by browsing the existing records of the given year
+ * @param head head pointer of the attendance/payroll history linked list
+ * @param year targer year to search for entries
+ * @return computed amount for 13th month pay, in PHP
+ */
 float compute13thMonthPay(attendanceHistory head, int year)
 {
     /* 13th month pay is 1/12 of the annual gross income if person worked for
@@ -1484,11 +1513,10 @@ float compute13thMonthPay(attendanceHistory head, int year)
 }
 
 /**
- * @brief computing total income of a person before deductions
- *
- * @param payDetails  differing salary rates based on time of an employee
- * @param attendance  attendance of an employee
- * @return float - gross income
+ * @brief Computes total gross income of an employee (before deductions)
+ * @param payDetails recorded salary rates of an employee
+ * @param attendance pointer to employee's attendance info and payroll amounts structure
+ * @return computed gross income of the employee, in PHP
  */
 float computeGrossIncome(paymentDetails payDetails, payrollDetail *attendance, int payrollDate[])
 {
@@ -1506,12 +1534,11 @@ float computeGrossIncome(paymentDetails payDetails, payrollDetail *attendance, i
 }
 
 /**
- * @brief Get the gross income of the first period
- *
- * @param pdptr - array of all the payroll details in the first period of the month
- * @param empId - employee ID
- * @param numOfEmployees
- * @return float - first period gross income of a specific employee
+ * @brief Get the first period gross income of the employee in the same month
+ * @param empTable employee hash table
+ * @param empId employee unique identifier
+ * @param payrollIDFirstPeriod payroll ID of the first period equivalent
+ * @return first period gross income of a specific employee
  */
 float getFirstGrossIncome(employeeTable empTable, char empID[], char payrollIDFirstPeriod[])
 {
@@ -1519,6 +1546,7 @@ float getFirstGrossIncome(employeeTable empTable, char empID[], char payrollIDFi
     int index = searchEmployee(empTable, empID);
     List trav;
 
+    //searching for the target payroll information (first period of the same month)
     for (trav = empTable[index].history; trav != NULL && strcmp(trav->payrollInfo.payrollID, payrollIDFirstPeriod) != 0; trav = trav->link)
     {
     }
@@ -1528,6 +1556,12 @@ float getFirstGrossIncome(employeeTable empTable, char empID[], char payrollIDFi
         return ret;
 }
 
+
+/**
+ * @brief Computes the SSS contribution based on an employee's combined gross income for the month
+ * @param income combined gross income
+ * @return computed SSS contribution, in PHP
+ */
 float computeSSS(float income)
 {
     float ret = 0;
@@ -1599,6 +1633,11 @@ float computeSSS(float income)
     return ret;
 }
 
+/**
+ * @brief Computes the PhilHealth contribution based on an employee's combined gross income for the month
+ * @param income combined gross income
+ * @return computed PhilHealth contribution, in PHP
+ */
 float computePHealth(float income)
 {
     float ret;
@@ -1614,6 +1653,11 @@ float computePHealth(float income)
     return ret;
 }
 
+/**
+ * @brief Computes the tax to be witheld based on an employee's identified taxable income for the month
+ * @param income net taxable income for the month
+ * @return computed tax to be witheld, in PHP
+ */
 float computeWithTax(float salary)
 {
     float ret;
@@ -1636,6 +1680,11 @@ float computeWithTax(float salary)
     return ret;
 }
 
+/**
+ * @brief Handles the computation of the contributions
+ * @param income combined gross income
+ * @return total computed contributions, in PHP
+ */
 float computeContributions(float income)
 {
     /* Taken from https://cloudcfo.ph/blog/payroll/government-mandatory-deductions-philippines/ */
@@ -1649,11 +1698,10 @@ float computeContributions(float income)
 }
 
 /**
- * @brief computes the net salary or the final salary; contributions; taxableIncome; and withholding tax
- *
- * @param grossIncome - total income before deductions
- * @param ptrPd  - points to the second period payroll detail in the createPayroll()
- * @return float - net salary
+ * @brief computes the net salary or the final salary; contributions; taxableIncome; and withholding tax - applicable only in second period payrolls
+ * @param grossIncome total gross income before deductions
+ * @param ptrPd pointer to the second period payroll detail in the create payroll function
+ * @return computed net salary, in PHP
  */
 float computeNetSalary(float grossIncome, payrollDetail *ptrPd)
 {
@@ -1664,8 +1712,9 @@ float computeNetSalary(float grossIncome, payrollDetail *ptrPd)
 }
 
 /**
- * @brief add payroll to the PayrollFile.bin
- * @param pd payroll to be added
+ * @brief appends the newly created payroll record to the payrolls file
+ * @param companyName name of the company
+ * @param pd payroll detail to be added
  * @return 1 if successful and 0 if failed
  */
 int addPayrollToFile(char companyName[], payrollDetail pd)
@@ -1689,8 +1738,9 @@ int addPayrollToFile(char companyName[], payrollDetail pd)
 }
 
 /**
- * @brief handles the creation of a payroll from obtaining period from user to saving details to file
- *
+ * @brief handles the payroll creation submenu from obtaining period from user to saving details to file
+ * @param empTable employee hash table
+ * @param companyName name of the company
  */
 void createPayroll(employeeTable empTable, char companyName[])
 {
@@ -1716,7 +1766,7 @@ void createPayroll(employeeTable empTable, char companyName[])
 
         system("cls");
         printf("\n==========================================");
-        printf("\n            CREATE NEW PAYROLL	        ");
+        printf("\n            CREATE NEW PAYROLL            ");
         printf("\n==========================================");
         printf("\n\nCreating payroll for Department %c for the period %02d-%02d/%02d/%04d\n", group, payrollDate[2], payrollDate[3], payrollDate[1], payrollDate[0]);
 
@@ -1784,6 +1834,13 @@ void createPayroll(employeeTable empTable, char companyName[])
     }
 }
 
+/**
+ * @brief Updates the employee record in the hash table
+ * @param empTable employee hash table
+ * @param newEmployee new/updated employee information
+ * @param index the location of the hash table where the new data will be overwritten
+ * @return 1 if action is successful and 0 if failed
+ */
 int updateEmployee(employeeTable empTable, employeeDetails newEmployee, int index)
 {
     int ret = 0;
@@ -1795,6 +1852,12 @@ int updateEmployee(employeeTable empTable, employeeDetails newEmployee, int inde
     return ret;
 }
 
+/**
+ * @brief Updates the employee record in the employee info file
+ * @param companyName name of the company
+ * @param newEmployee new/updated employee information
+ * @return 1 if action is successful and 0 if failed
+ */
 int updateEmployeeToFile(char companyName[], employeeDetails newEmployee)
 {
     int ret = 0, ndx = 0;
@@ -1823,6 +1886,12 @@ int updateEmployeeToFile(char companyName[], employeeDetails newEmployee)
     return ret;
 }
 
+/**
+ * @brief Updates the attendance/payroll record in the attendance/payroll linked list section of the employee table
+ * @param history head pointer of the attendance/payroll history linked list
+ * @param newRecord new/updated attendance/payroll information
+ * @return 1 if action is successful and 0 if failed
+ */
 int updateAttendanceRecord(attendanceHistory history, attendanceDetails newRecord)
 {
     int ret = 0;
@@ -1838,6 +1907,12 @@ int updateAttendanceRecord(attendanceHistory history, attendanceDetails newRecor
     return ret;
 }
 
+/**
+ * @brief Updates the attendance/payroll record in the attendance/payroll info file
+ * @param companyName name of the company
+ * @param newRecord new/updated attendance/payroll information
+ * @return 1 if action is successful and 0 if failed
+ */
 int updateAttendanceToFile(char companyName[], attendanceDetails newRecord)
 {
     int ret = 0, ndx = 0;
@@ -1865,6 +1940,12 @@ int updateAttendanceToFile(char companyName[], attendanceDetails newRecord)
     return ret;
 }
 
+/**
+ * @brief Handles the edit employee submenu and prompts user inputs for modifying the information
+ * @param empTable employee hash table
+ * @param companyName  name of the company
+ * @return 1 if action is successful, 0 if failed, and -1 if cancelled 
+ */
 int editEmployee(employeeTable empTable, char companyName[])
 {
     /* buffer for input validation */
@@ -1907,8 +1988,8 @@ int editEmployee(employeeTable empTable, char companyName[])
             printf("\n[ 4 ] Date employed(MM/DD/YY):\t%02d/%02d/%02d", newEmployee.employee.dateEmployed.month, newEmployee.employee.dateEmployed.day, newEmployee.employee.dateEmployed.year);
             printf("\n[ 5 ] Email:                  \t%s", newEmployee.employee.contact.email);
             printf("\n[ 6 ] Contact No.:            \t%s", newEmployee.employee.contact.phone);
-            printf("\n[ 7 ] Basic Salary:           \t%.02f", newEmployee.employee.details.basicSalary);
-            printf("\n[ 8 ] Overtime Pay:           \t%.02f", newEmployee.employee.details.overtimeHourlyRate);
+            printf("\n[ 7 ] Basic Salary (PHP):     \t%.02f", newEmployee.employee.details.basicSalary);
+            printf("\n[ 8 ] Overtime Pay (PHP):     \t%.02f", newEmployee.employee.details.overtimeHourlyRate);
             printf("\n[ 9 ] Department:             \t%c", newEmployee.employee.department);
             printf("\n[ 0 ] Employee Status:        \t%s", (newEmployee.employee.status) ? "Inactive" : "Active");
             printf("\n==========================================");
