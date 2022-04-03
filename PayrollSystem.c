@@ -4,7 +4,7 @@
  * Created by: Team 1
  * Members: C. Stewart, J. Leano, J. Samson,  J. Rosales, J. Tejada, I. Monzales,
  *           J. Guzman, E. Celdran, I. Woogue, M. Valeros, W. Dayata 
- * Date: March 14-29, 2022
+ * Date: March 14 - April 3, 2022
  *
  * GitHub Repository Link: https://github.com/20100215/CIS2206PayrollSystem.git
  * 
