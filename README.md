@@ -1,9 +1,12 @@
-# CIS2206PayrollSystem
+# Payroll System (C Project)
+
+![image](https://github.com/20100215/CIS2206PayrollSystem/assets/84717650/9833f8ea-17b8-4ed3-a890-5ccb1cd7c718)
+
+  Functionalities:
   
-    
-  (2)   Initialization and main menu creation
+(1)   Initialization and main menu creation
         
-  (3)   Create employee
+(2)   Create employee
         View list of employees
             (Display ID and names)
         View specific employee info
@@ -13,13 +16,13 @@
                     Enter period to display
                         Retrieve desired attendance info -> Compute on the spot and display salary breakdown
 
-  (2)   Edit employee info
+ (3)   Edit employee info
             Enter employee ID
             Edit Personal Details
             Edit Attendance Info
                 (Display Periods) Enter period to edit
                 
-  (3)    Create Payroll
+(4)    Create Payroll
             Enter Payroll Period and Group
                 Confirm period entered or cancel
                 For each employee -> Enter Attendance for Individual Employees -> insertFirst() to LL of the employee
