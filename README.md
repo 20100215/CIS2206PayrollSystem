@@ -6,7 +6,7 @@
   
 (1)   Initialization and main menu creation
         
-(2)   Create employee
+(2)   Create employee:
         View list of employees
             (Display ID and names)
         View specific employee info
@@ -26,10 +26,3 @@
             Enter Payroll Period and Group
                 Confirm period entered or cancel
                 For each employee -> Enter Attendance for Individual Employees -> insertFirst() to LL of the employee
-     
-     
-    Reload 
-        Exit
-            Confirm exit
-            
-           
